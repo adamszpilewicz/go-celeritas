@@ -1,6 +1,11 @@
 package celeritas
 
-import "log"
+import (
+	"fmt"
+	"github.com/adamszpilewicz/godotenv"
+	"log"
+	"os"
+)
 
 const version = "1.0.0"
 
@@ -21,6 +26,19 @@ func (c *Celeritas) New(rootPath string) error{
 		log.Fatalf("error while createing dirs: %s", err)
 		return err
 	}
+
+	err = c.checkDotEnv(rootPath)
+	if err != nil {
+		log.Fatalf("error while checking env variable: %s", err)
+	}
+
+	err = godotenv.Load(rootPath + "/.env")
+	if err != nil {
+		log.Fatalf("error while loading .env file: %s", err)
+	}
+
+	log.Println(os.Environ())
+
 	return nil
 }
 
@@ -31,6 +49,14 @@ func (c *Celeritas) init(p initPaths) error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (c *Celeritas) checkDotEnv(path string) error {
+	err := c.CreateFileIfNotExists(fmt.Sprintf("%s/.env", path))
+	if err != nil {
+		return err
 	}
 	return nil
 }
